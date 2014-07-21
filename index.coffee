@@ -11,76 +11,13 @@ jsonp = require 'jsonp'
 class TwitterFetcher
 
   ###*
-   * @type {string}
-  ###
-  field: ''
-
-  ###*
-   * @type {number}
-  ###
-  index: 20
-
-  ###*
-   * @type {boolean}
-  ###
-  response: true
-
-  ###*
-   * @type {Array}
-  ###
-  results: []
-
-  ###*
-   * @type {boolean}
-  ###
-  t: false
-
-  ###*
-   * @type {boolean}
-  ###
-  deep: true
-
-  ###*
-   * @type {boolean}
-  ###
-  msg: true
-
-  ###*
-   * @type {null}
-  ###
-  e: null
-
-  ###*
-   * @type {boolean}
-  ###
-  v: true
-
-  ###*
-   * @type {boolean}
-  ###
-  error: true
-
-  ###*
-   * @type {null}
-  ###
-  win: null
-
-  ###*
-   * @type {boolean}
-  ###
-  text: true
-
-  ###*
    * @param {string} text
    * @return {string}
   ###
   template: (text) ->
-    if text?
-      text.replace(/<b[^>]*>(.*?)<\/b>/g, (dataAndEvents, match) ->
-        match
-      ).replace /class=".*?"|data-query-source=".*?"|dir=".*?"|rel=".*?"/g, ''
-    else
-      ''
+    text.replace(/<b[^>]*>(.*?)<\/b>/g, (dataAndEvents, match) ->
+      match
+    ).replace /class=".*?"|data-query-source=".*?"|dir=".*?"|rel=".*?"/g, ''
 
   ###*
    * @param {Element} list
@@ -111,126 +48,74 @@ class TwitterFetcher
     arr
 
   ###*
-   * How to use fetch function:
+   * [fetch description]
+   * @param {String} opts.id - Your Twitter widget ID.
 
-   * @param {string} Your Twitter widget ID.
+   * @param {String} opts.domId - The ID of the DOM element you want to write
+   * results to.
 
-   * @param {string} The ID of the DOM element you want to write results to.
+   * @param {Int} [opts.maxTweets=20] - The maximum number of tweets you want
+   * returned. Must be a number between 1 and 20.
 
-   * @param {int} Optional - the maximum number of tweets you want returned.
-   * Must be a number between 1 and 20.
+   * @param {Boolean} [opts.enableLinks=true] - Set true if you want urls and
+   * hash tags to be hyperlinked
 
-   * @param {boolean} Optional - set true if you want urls and hash
-   * tags to be hyperlinked!
+   * @param {Boolean} [opts.showUser=true] - Set false if you dont want user
+   * photo / name for tweet to show.
 
-   * @param {boolean} Optional - Set false if you dont want user photo /
-   * name for tweet to show.
+   * @param {Boolean} [opts.showTime=true] - Set false if you dont want time of
+   * tweet to show.
 
-   * @param {boolean} Optional - Set false if you dont want time of tweet
-   * to show.
-
-   * @param {function/string} Optional - A function you can specify to format
-   * tweet date/time however you like. This function takes a JavaScript date
-   * as a parameter and returns a String representation of that date.
+   * @param {Function} [opts.dateFunction] - A function you can specify to
+   * format tweet date/time however you like. This function takes a JavaScript
+   * date as a parameter and returns a String representation of that date.
    * Alternatively you may specify the string 'default' to leave it with
    * Twitter's default renderings.
 
-   * @param {boolean} Optional - Show retweets or not. Set false to not show.
+   * @param {Boolean} [opts.showRt=true] - Show retweets or not. Set false to
+   * not show.
 
-   * @param {function/string} Optional - A function to call when data is ready.
-   * It also passes the data to this function should you wish to manipulate
-   * it yourself before outputting. If you specify this parameter you  must
-   * output data yourself!
+   * @param {Function} [opts.customCallback] A function to call when data is
+   * ready. It also passes the data to this function should you wish to
+   * manipulate it yourself before outputting. If you specify this parameter you
+   * must output data yourself!
 
-   * @param {boolean} Optional - Show links for reply, retweet, favourite. Set
-   * false to not show.
+   * @param {Boolean} [opts.showInteraction=true] Show links for reply, retweet,
+   * favourite.
+
+   * @return {Boolean} [description]
   ###
-  fetch: (query, element, options = 20, res, type = true, target = true, dateFunction = 'default', showRt = true, params = null, textAlt = true) ->
+  fetch: (opts) ->
+    #opts.id
+    #opts.domId
+    opts.maxTweets ?= 20
+    opts.enableLinks ?= true
+    opts.showUser ?= true
+    opts.showTime ?= true
+    opts.dateFunction ?= (x) -> x
+    opts.showRt ?= true
+    opts.customCallback ?= null
+    opts.showInteraction ?= true
 
-    ###*
-     * @type {boolean}
-    ###
-    @response = true if not res?
-
-    if @t
-      @results.push
-        id: query
-        domId: element
-        maxTweets: options
-        enableLinks: res
-        showUser: type
-        showTime: target
-        dateFunction: dateFunction
-        showRt: showRt
-        customCallback: params
-        showInteraction: textAlt
-    else
-
-      ###*
-       * @type {boolean}
-      ###
-      @t = true
-
-      ###*
-       * @type {string}
-      ###
-      @field = element
-
-      ###*
-       * @type {number}
-      ###
-      @index = options
-
-      ###*
-       * @type {boolean}
-      ###
-      @response = res
-
-      ###*
-       * @type {boolean}
-      ###
-      @msg = type
-
-      ###*
-       * @type {boolean}
-      ###
-      @deep = target
-
-      ###*
-       * @type {boolean}
-      ###
-      @error = showRt
-
-      ###*
-       * @type {string}
-      ###
-      @e = dateFunction
-      @win = params
-
-      ###*
-       * @type {boolean}
-      ###
-      @text = textAlt
-
-      jsonp("//cdn.syndication.twimg.com/widgets/timelines/#{query}?&lang=en&suppress_response_codes=true&rnd=#{Math.random()}", {}, @callback)
+    jsonp(
+      "//cdn.syndication.twimg.com/widgets/timelines/#{opts.id}?&lang=en&suppress_response_codes=true&rnd=#{Math.random()}"
+      {}
+      @callback.bind(this, opts)
+    )
     return
 
   ###*
    * @param {Array} data
    * @return {undefined}
   ###
-  callback: (err, data) =>
+  callback: (opts, err, data) ->
+    if err then throw new Error(err)
 
     ###*
      * @type {Element}
     ###
     result = document.createElement('div')
     result.innerHTML = data.body
-
-    ###*
-     * @type {boolean}
-    ###
-    @v = false if not result.getElementsByClassName?
 
     ###*
      * @type {Array}
@@ -261,106 +146,74 @@ class TwitterFetcher
      * @type {number}
     ###
     x = 0
-    if @v
-      result = result.getElementsByClassName('tweet')
-      while x < result.length
-        if 0 < result[x].getElementsByClassName('retweet-credit').length
-          i.push true
-        else
-          i.push false
-        if not i[x] or i[x] and @error
-          data.push result[x].getElementsByClassName('e-entry-title')[0]
-          oSpace.push result[x].getAttribute('data-tweet-id')
-          list.push result[x].getElementsByClassName('p-author')[0]
-          tags.push result[x].getElementsByClassName('dt-updated')[0]
-        x++
-    else
-      result = @filter(result, 'tweet')
-      while x < result.length
-        data.push @filter(result[x], 'e-entry-title')[0]
+    result = result.getElementsByClassName('tweet')
+    while x < result.length
+      if 0 < result[x].getElementsByClassName('retweet-credit').length
+        i.push true
+      else
+        i.push false
+      if not i[x] or i[x] and opts.showRt
+        data.push result[x].getElementsByClassName('e-entry-title')[0]
         oSpace.push result[x].getAttribute('data-tweet-id')
-        list.push @filter(result[x], 'p-author')[0]
-        tags.push @filter(result[x], 'dt-updated')[0]
-        if 0 < @filter(result[x], 'retweet-credit').length
-          i.push true
-        else
-          i.push false
-        x++
-    if data.length > @index
-      data.splice @index, data.length - @index
-      list.splice @index, list.length - @index
-      tags.splice @index, tags.length - @index
-      i.splice @index, i.length - @index
+        list.push result[x].getElementsByClassName('p-author')[0]
+        tags.push result[x].getElementsByClassName('dt-updated')[0]
+      x++
+
+    if data.length > opts.maxTweets
+      data.splice opts.maxTweets, data.length - opts.maxTweets
+      list.splice opts.maxTweets, list.length - opts.maxTweets
+      tags.splice opts.maxTweets, tags.length - opts.maxTweets
+      i.splice opts.maxTweets, i.length - opts.maxTweets
 
     ###*
      * @type {Array}
     ###
     result = []
 
-    ###*
-     * @type {number}
-    ###
-    x = data.length
-
-    ###*
-     * @type {number}
-    ###
-    i = 0
-    while i < x
-      if 'string' isnt typeof @e
-
-        ###*
-         * @type {Date}
-        ###
-        val = new Date(tags[i]?.getAttribute('datetime').replace(/-/g, '/').replace('T', ' ').split('+')[0])
-        val = @e(val)
-        tags[i].setAttribute 'aria-label', val
-        if data[i].innerText
-          if @v
-            tags[i].innerText = val
-          else
-
-            ###*
-             * @type {Element}
-            ###
-            el = document.createElement('p')
-
-            ###*
-             * @type {Text}
-            ###
-            frag = document.createTextNode(val)
-            el.appendChild frag
-            el.setAttribute 'aria-label', val
-
-            ###*
-             * @type {Element}
-            ###
-            tags[i] = el
-        else
-          tags[i].textContent = val
+    for i in [0...data.length]
+      ###*
+       * @type {Date}
+      ###
+      val = new Date(tags[i].getAttribute('datetime').replace(/-/g, '/').replace('T', ' ').split('+')[0])
+      val = opts.dateFunction(val)
+      tags[i].setAttribute 'aria-label', val
+      tags[i].textContent = val
 
       ###*
        * @type {string}
       ###
-
       val = ''
-      if @response
-        val += "<div class=\"user\">#{@template(list[i]?.innerHTML)}</div>" if @msg
-        val += "<p class=\"tweet\">#{@template(data[i]?.innerHTML)}</p>"
-        val += "<p class=\"timePosted\">#{tags[i]?.getAttribute("aria-label")}</p>" if @deep
+
+      if opts.enableLinks
+        if opts.showUser
+          val += "<div class=\"user\">#{@template(list[i].innerHTML)}</div>"
+        val += "<p class=\"tweet\">#{@template(data[i].innerHTML)}</p>"
+        if opts.showTime
+          val += "<p class=\"timePosted\">#{tags[i].getAttribute("aria-label")}</p>"
       else
         if data[i].innerText
-          val += "<p class=\"user\">#{list[i]?.innerText}</p>" if @msg
-          val += "<p class=\"tweet\">#{data[i]?.innerText}</p>"
-          val += "<p class=\"timePosted\">#{tags[i]?.innerText}</p>" if @deep
+          if opts.showUser
+            val += "<p class=\"user\">#{list[i].innerText}</p>"
+          val += "<p class=\"tweet\">#{data[i].innerText}</p>"
+          if opts.showTime
+            val += "<p class=\"timePosted\">#{tags[i].innerText}</p>"
         else
-          val += "<p class=\"user\">#{list[i]?.textContent}</p>" if @msg
-          val += "<p class=\"tweet\">#{data[i]?.textContent}</p>"
-          val += "<p class=\"timePosted\">#{tags[i]?.textContent}</p>" if @deep
-      val += "<p class=\"interact\"><a href=\"https://twitter.com/intent/tweet?in_reply_to=#{oSpace[i]}\" class=\"twitter_reply_icon\">Reply</a><a href=\"https://twitter.com/intent/retweet?tweet_id=#{oSpace[i]}\" class=\"twitter_retweet_icon\">Retweet</a><a href=\"https://twitter.com/intent/favorite?tweet_id=#{oSpace[i]}\" class=\"twitter_fav_icon\">Favorite</a></p>" if @text
+          if opts.showUser
+            val += "<p class=\"user\">#{list[i].textContent}</p>"
+          val += "<p class=\"tweet\">#{data[i].textContent}</p>"
+          if opts.showTime
+            val += "<p class=\"timePosted\">#{tags[i].textContent}</p>"
+      if opts.showInteraction
+        val += """
+          <p class="interact">
+            <a href="https://twitter.com/intent/tweet?in_reply_to=#{oSpace[i]}" class="twitter_reply_icon">Reply</a>
+            <a href="https://twitter.com/intent/retweet?tweet_id=#{oSpace[i]}" class="twitter_retweet_icon">Retweet</a>
+            <a href="https://twitter.com/intent/favorite?tweet_id=#{oSpace[i]}" class="twitter_fav_icon">Favorite</a>
+          </p>
+        """
       result.push val
-      i++
-    if null is @win
+
+    if not opts.customCallback
       data = result.length
 
       ###*
@@ -371,7 +224,7 @@ class TwitterFetcher
       ###*
        * @type {(HTMLElement|null)}
       ###
-      tags = document.getElementById(@field)
+      tags = document.getElementById(opts.domId)
 
       ###*
        * @type {string}
@@ -381,20 +234,10 @@ class TwitterFetcher
         oSpace += "<li>#{result[list]}</li>"
         list++
 
-      ###*
-       * @type {string}
-      ###
       tags.innerHTML = "#{oSpace}</ul>"
     else
-      @win result
+      opts.customCallback result
 
-    ###*
-     * @typ{boolean}
-    ###
-    @t = false
-    if 0 < @results.length
-      @fetch @results[0].id, @results[0].domId, @results[0].maxTweets, @results[0].enableLinks, @results[0].showUser, @results[0].showTime, @results[0].dateFunction, @results[0].showRt, @results[0].customCallback, @results[0].showInteraction
-      @results.splice 0, 1
     return
 
 module.exports = TwitterFetcher
