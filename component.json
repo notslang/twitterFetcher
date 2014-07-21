@@ -1,0 +1,16 @@
+{
+  "name": "twitterFetcher",
+  "repo": "slang800/twitterFetcher",
+  "description": "fetch tweets from twitter on the client-side without oAuth",
+  "version": "0.0.1",
+  "keywords": [],
+  "dependencies": {
+    "webmodules/jsonp": "*"
+  },
+  "development": {},
+  "license": "MIT",
+  "main": "index.js",
+  "scripts": [
+    "index.coffee"
+  ]
+}
