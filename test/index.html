@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <!-- Hello fellow coder! Original project page: www.jasonmayes.com/projects/twitterApi -->
     <meta charset="utf-8">
     <title>Twitter API 1.1 JavaScript only solution</title>
   </head>
@@ -12,7 +11,7 @@
     <div id="example2"></div>
     <h2>Query 3: Last 3 Twitter posts using hastag #API</h2>
     <div id="example3"></div>
-    <h2>Query 4: Last 3 Twitter posts using hastag #API with custom callback</h2>
+    <h2>Query 4: The authors of the last 20 Twitter posts using hastag #API</h2>
     <div id="example4"></div>
 
     <!-- First you MUST Include the Twitter Fetcher component! -->
@@ -23,60 +22,40 @@
       document.addEventListener("DOMContentLoaded", function(){
         twitterFetcher = new (require('twitterFetcher/index.js'))()
 
-        twitterFetcher.fetch({
-          id: '345170787868762112',
-          domId: 'example1',
+        twitterFetcher.fetch('345170787868762112', {
           maxTweets: 1,
-          enableLinks: true
-        });
+        }).then(function(html) {
+          document.getElementById('example1').innerHTML = html
+        })
 
-        twitterFetcher.fetch({
-          id: '347099293930377217',
-          domId: 'example2',
+        twitterFetcher.fetch('347099293930377217', {
           maxTweets: 5,
-          enableLinks: true,
           showUser: true,
           showTime: false
-        });
+        }).then(function(html) {
+          document.getElementById('example2').innerHTML = html
+        })
 
-        twitterFetcher.fetch({
-          id: '345690956013633536',
-          domId: 'example3',
+        twitterFetcher.fetch('345690956013633536', {
           maxTweets: 3,
-          enableLinks: true,
           showUser: false,
           showTime: true,
-          dateFunction: dateFormatter,
           showRt: false
-        });
+        }).then(function(html) {
+          document.getElementById('example3').innerHTML = html
+        })
 
-        function dateFormatter(date) {
-          return date.toTimeString();
-        }
-
-        twitterFetcher.fetch({
-          id: '345690956013633536',
-          domId: 'example4',
-          maxTweets: 3,
-          enableLinks: true,
-          showUser: true,
-          showTime: true,
-          showRt: false,
-          customCallback: handleTweets
-        });
-
-        function handleTweets(tweets){
-          var x = tweets.length;
-          var n = 0;
-          var element = document.getElementById('example4');
-          var html = '<ul>';
-          while(n < x) {
-            html += '<li>' + tweets[n] + '</li>';
-            n++;
-          }
-          html += '</ul>';
-          element.innerHTML = html;
-        }
+        twitterFetcher
+          .fetchRaw('345690956013633536')
+          .then(function(tweets) {
+            var authors, tweet, _i, _len;
+            authors = [];
+            for (_i = 0, _len = tweets.length; _i < _len; _i++) {
+              tweet = tweets[_i];
+              authors.push(tweet.author);
+            }
+            document.getElementById('example4').innerHTML = authors.join(', ');
+          })
       })
     </script>
   </body>

@@ -5,7 +5,7 @@
   "version": "0.0.1",
   "keywords": [],
   "dependencies": {
-    "webmodules/jsonp": "*"
+    "rangermauve/jsonp-promise": "*"
   },
   "development": {},
   "license": "MIT",

@@ -1,7 +1,7 @@
 # twitter fetcher
 Fetch tweets from twitter on the client-side without oAuth.
 
-Based on http://jasonmayes.com/projects/twitterApi/
+Loosely based on http://jasonmayes.com/projects/twitterApi/
 
 ## Installation
 
@@ -26,117 +26,68 @@ twitterFetcher = new TwitterFetcher()
 /*
  * How to use the fetch function:
 
- * @param {String} opts.id - Your Twitter widget ID.
-
- * @param {String} opts.domId - The ID of the DOM element you want to write
- * results to.
+ * @param {String} id - Your Twitter widget ID.
 
  * @param {Int} [opts.maxTweets=20] - The maximum number of tweets you want
- * returned. Must be a number between 1 and 20.
+ * returned. Must be a number between 0 and 20.
 
- * @param {Boolean} [opts.enableLinks=true] - Set true if you want urls and
- * hash tags to be hyperlinked
-
- * @param {Boolean} [opts.showUser=true] - Set false if you dont want user
+ * @param {Boolean} [opts.showUser=true] - Set false if you don't want user
  * photo / name for tweet to show.
 
- * @param {Boolean} [opts.showTime=true] - Set false if you dont want time of
+ * @param {Boolean} [opts.showTime=true] - Set false if you don't want time of
  * tweet to show.
 
- * @param {Function} [opts.dateFunction] - A function you can specify to
- * format tweet date/time however you like. This function takes a JavaScript
- * date as a parameter and returns a String representation of that date.
- * Alternatively you may specify the string 'default' to leave it with
- * Twitter's default renderings.
-
- * @param {Boolean} [opts.showRt=true] - Show retweets or not. Set false to
- * not show.
-
- * @param {Function} [opts.customCallback] A function to call when data is
- * ready. It also passes the data to this function should you wish to
- * manipulate it yourself before outputting. If you specify this parameter you
- * must output data yourself!
+ * @param {Boolean} [opts.showRt=true] - Show retweets or not. Set false to not
+ * show.
 
  * @param {Boolean} [opts.showInteraction=true] Show links for reply, retweet,
- * favourite.
+ * favorite.
 
- * @return {Boolean} [description]
+ * @return {Promise} Promise for the HTML
  */
 
-// Simple example 1
 // A simple example to get my latest tweet and write to a HTML element with
-// id "tweets". Also automatically hyperlinks URLS and user mentions and
-// hashtags.
-twitterFetcher.fetch({
-  id: '345170787868762112',
-  domId: 'example1',
+// id "example1".
+twitterFetcher.fetch('345170787868762112', {
   maxTweets: 1,
-  enableLinks: true
-});
+}).then(function(html) {
+  document.getElementById('example1').innerHTML = html
+})
 
-// Simple example 2
-// A simple example to get my latest 5 of my favourite tweets and write to a HTML
-// element with id "talk". Also automatically hyperlinks URLS and user mentions and
-// hashtags but does not display time of post.
-twitterFetcher.fetch({
-  id: '347099293930377217',
-  domId: 'example2',
+// A simple example to get my latest 5 of my favorite tweets and write to a HTML
+// element with id "example2". Also do not not display time of post.
+twitterFetcher.fetch('347099293930377217', {
   maxTweets: 5,
-  enableLinks: true,
   showUser: true,
   showTime: false
-});
+}).then(function(html) {
+  document.getElementById('example2').innerHTML = html
+})
 
-
-// Advanced example
-// An advance example to get latest 5 posts using hashtag #API and write to a
-// HTML element with id "tweets2" without showing user details and using a
-// custom format to display the date/time of the post, and does not show
+// An example to get latest 3 posts using hashtag #API and write to a HTML
+// element with id "example3" without showing user details and not showing
 // retweets.
-twitterFetcher.fetch({
-  id: '345690956013633536',
-  domId: 'example3',
+twitterFetcher.fetch('345690956013633536', {
   maxTweets: 3,
-  enableLinks: true,
   showUser: false,
   showTime: true,
-  dateFunction: dateFormatter,
   showRt: false
-});
+}).then(function(html) {
+  document.getElementById('example3').innerHTML = html
+})
 
-// For advanced example which allows you to customize how tweet time is
-// formatted you simply define a function which takes a JavaScript date as a
-// parameter and returns a string.
-function dateFormatter(date) {
-  return date.toTimeString();
-}
-
-
-// Advanced example 2
-// Similar as previous, except this time we pass a custom function to render the
-// tweets ourself! Useful if you need to know exactly when data has returned or
-// if you need full control over the output.
-twitterFetcher.fetch({
-  id: '345690956013633536',
-  domId: 'example4',
-  maxTweets: 3,
-  enableLinks: true,
-  showUser: true,
-  showTime: true,
-  showRt: false,
-  customCallback: handleTweets
-});
-
-function handleTweets(tweets){
-  var x = tweets.length;
-  var n = 0;
-  var element = document.getElementById('example4');
-  var html = '<ul>';
-  while(n < x) {
-    html += '<li>' + tweets[n] + '</li>';
-    n++;
-  }
-  html += '</ul>';
-  element.innerHTML = html;
-}
+// Here we use the fetchRaw to get the 20 posts from the widget formatted as
+// pure JSON. Looping over this, we are able to extract the authors of the last
+// 20 Twitter posts using hastag #API
+twitterFetcher
+  .fetchRaw('345690956013633536')
+  .then(function(tweets) {
+    var authors, tweet, _i, _len;
+    authors = [];
+    for (_i = 0, _len = tweets.length; _i < _len; _i++) {
+      tweet = tweets[_i];
+      authors.push(tweet.author);
+    }
+    document.getElementById('example4').innerHTML = authors.join(', ');
+  })
 ```
