@@ -10,15 +10,12 @@ Install with [component(1)](http://component.io):
   $ component install slang800/twitterFetcher
 
 Make a widget id using the following steps:
-- Go to www.twitter.com and sign in as normal, go to your settings page.
+- Go to [twitter](https://twitter.com) and sign in as normal, go to your settings page.
 - Go to "Widgets" on the left hand side.
 - Create a new widget for what you need eg "user timeline" or "search" etc.
-- Feel free to check "exclude replies" if you dont want replies in results.
-- Now go back to settings page, and then go back to widgets page, you should
-- see the widget you just created. Click edit.
-- Now look at the URL in your web browser, you will see a long number like this:
-- 345735908357048478
-- Use this as your `id`
+- Feel free to check "exclude replies" if you don't want replies in results.
+- Now go back to settings page, and then go back to widgets page, you should see the widget you just created. Click edit.
+- Look at the URL in your web browser, you will see a long number like this: 345735908357048478. Use this as your `id`
 
 ## Example Usage
 
