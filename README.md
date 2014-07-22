@@ -7,7 +7,9 @@ Loosely based on http://jasonmayes.com/projects/twitterApi/
 
 Install with [component(1)](http://component.io):
 
-  $ component install slang800/twitterFetcher
+```bash
+$ component install slang800/twitterFetcher
+```
 
 Make a widget id using the following steps:
 - Go to [twitter](https://twitter.com) and sign in as normal, go to your settings page.
