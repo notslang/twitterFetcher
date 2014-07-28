@@ -17,7 +17,7 @@ class TwitterFetcher
   stripGarbage: (text) ->
     text.replace(/<b[^>]*>(.*?)<\/b>/g, (dataAndEvents, match) ->
       match
-    ).replace /class=".*?"|data-[a-z]+=".*?"|rel=".*?"/g, ''
+    ).replace /(?:class|data-[a-z-]+|rel|target)=".*?"/g, ''
 
   ###*
    * @param {String} id - Your Twitter widget ID.
